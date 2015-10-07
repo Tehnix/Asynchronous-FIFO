@@ -126,7 +126,7 @@ begin
     if reset = '1' then
     -- reset the system
     elsif rising_edge(wclk) then
-    --
+
     end if;
   end process;
 
