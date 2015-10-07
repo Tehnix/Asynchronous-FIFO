@@ -1,14 +1,10 @@
-package constant_package is
-  constant DATA_WIDTH    : integer := 8;
-  constant ADDRESS_WIDTH : integer := 4;
-end constant_package;
-
 library ieee;
-use work.all;
+library work;
+
 use ieee.std_logic_1164.all;
 use std.textio.all;
 use ieee.numeric_std.all;
-use work.constant_package.all;
+use work.constants_pkg.all;
 
 
 -- ASYNC_FIFO ENTITY
@@ -131,8 +127,6 @@ begin
     -- reset the system
     elsif rising_edge(wclk) then
     --
-    else
-    -- do nothing
     end if;
   end process;
 
