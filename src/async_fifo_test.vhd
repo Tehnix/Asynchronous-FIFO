@@ -13,7 +13,7 @@ end async_fifo_test;
 architecture behavior of async_fifo_test is
   type test_array is
     array (2 ** (ADDRESS_WIDTH - 1) - 1 downto 0)
-    of std_logic_vector(DATA_WIDTH - 1);
+    of std_logic_vector((DATA_WIDTH - 1) downto 0);
 
   -- Inputs
   signal reset        : std_logic := '0';
@@ -39,6 +39,17 @@ architecture behavior of async_fifo_test is
                                       x"DE", x"AD", x"BE", x"EF",
                                       x"DE", x"AD", x"BE", x"EF",
                                       x"DE", x"AD", x"BE", x"EF");
+  component async_fifo is
+    port (reset         : in  std_logic;
+          wclk          : in  std_logic;
+          rclk          : in  std_logic;
+          write_enable  : in  std_logic;
+          read_enable   : in  std_logic;
+          write_data_in : in  std_logic_vector((DATA_WIDTH - 1) downto 0);
+          fifo_occu_in  : out std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+          fifo_occu_out : out std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+          read_data_out : out std_logic_vector((DATA_WIDTH - 1) downto 0));
+  end component;
 
 begin
   -- instantiate the unit under test (uut)
