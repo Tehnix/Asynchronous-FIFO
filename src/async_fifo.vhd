@@ -22,16 +22,17 @@ end async_fifo;
 
 architecture arch of async_fifo is
 
-  signal wptr_sync : std_logic_vector((ADDRESS_WIDTH - 1) downto 0) := (others => '0');
-  signal rptr_sync : std_logic_vector((ADDRESS_WIDTH - 1) downto 0) := (others => '0');
-  signal full      : std_logic := '0';
-  signal empty     : std_logic := '0';
-  signal wen       : std_logic := '0';
-  signal ren       : std_logic := '0';
-  signal wptr      : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
-  signal rptr      : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
-  signal waddr     : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
-  signal raddr     : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+  signal wptr_sync      : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+  signal rptr_sync      : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+  signal full           : std_logic;
+  signal empty          : std_logic;
+  signal empty_inverted : std_logic;
+  signal wen            : std_logic;
+  signal ren            : std_logic;
+  signal wptr           : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+  signal rptr           : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+  signal waddr          : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+  signal raddr          : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
 
   -- FIFO Control
   component fifo_control is
@@ -66,6 +67,9 @@ architecture arch of async_fifo is
   end component;
 
 begin
+
+  empty_inverted <= not empty;
+
   -- FIFO Write Control port mapping
   fwc : fifo_control
     port map(clk          => wclk,
@@ -87,7 +91,7 @@ begin
       sync_pointer => wptr_sync,
       pointer      => rptr,
       fifo_occu    => fifo_occu_out,
-      flag         => empty,
+      flag         => empty_inverted,
       address      => raddr,
       mem_en       => ren);
 
@@ -113,15 +117,6 @@ begin
              ren           => ren,
              write_data_in => write_data_in,
              read_data_out => read_data_out);
-
-  --process (full, empty)
-  --begin
-  --  if full = '1' then
-
-  --  elsif empty = '1' then
-  --  -- Dont read you fucker
-  --  end if;
-  --end process;
 
   process (wclk)
   begin

@@ -36,12 +36,10 @@ begin
     end if;
   end process;
 
-  process (rclk, raddr, ren)
+  process (raddr, ren)
   begin
-    if rising_edge(rclk) then
-      if ren = '1' then
-        read_data_out <= storage(to_integer(unsigned(raddr)));
-      end if;
+    if ren = '1' then
+      read_data_out <= storage(to_integer(unsigned(raddr)));
     end if;
   end process;
 

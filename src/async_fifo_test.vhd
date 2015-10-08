@@ -129,9 +129,9 @@ begin
     for i in 0 to (2 ** (ADDRESS_WIDTH - 1)) - 1 loop
       read_enable <= '1';
 
-      assert read_data_out = TEST_DATA(i) report "Read data is wrong!" severity failure;
-
       wait for CLOCK_PERIOD_FAST;
+
+      assert read_data_out = TEST_DATA(i) report "Read data is wrong!" severity warning;
 
       read_enable <= '0';
 
