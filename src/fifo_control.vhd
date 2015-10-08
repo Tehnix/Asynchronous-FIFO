@@ -21,35 +21,35 @@ entity fifo_control is
 end fifo_control;
 
 architecture arch of fifo_control is
-  signal pointer : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+  signal mem_pointer : std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
 begin
 
-  process (sync_pointer, pointer)
+  pointer <= mem_pointer;
+  fifo_occu <= std_logic_vector(unsigned(mem_pointer) - unsigned(sync_pointer));
+
+  process (sync_pointer, mem_pointer)
   begin
-    if sync_pointer(n) = pointer(n) then
-      fifo_occu <= sync_pointer(ADDRESS_WIDTH - 1 downto 0) -
-                   pointer(ADDRESS_WIDTH - 1 downto 0);
-      flag <= '1';
-    else
-      fifo_occu <= 2 ** ADDRESS_WIDTH -
-                   (sync_pointer(ADDRESS_WIDTH - 1 downto 0) -
-                    pointer(ADDRESS_WIDTH - 1 downto 0));
+    -- Write POV
+    if sync_pointer(ADDRESS_WIDTH - 1) = mem_pointer(ADDRESS_WIDTH - 1) then
       flag <= '0';
+    else
+      flag <= '1';
     end if;
   end process;
 
   process (clk, reset, enable)
   begin
     if reset = '1' then
-      pointer   <= (others => '0');
-      fifo_occu <= (others => '0');
-      flag      <= '0';
+      mem_pointer   <= (others => '0');
       address   <= (others => '0');
       mem_en    <= '0';
     elsif rising_edge(clk) then
+      mem_en <= '0';
+
       if enable = '1' then
         mem_en <= '1';
-
+        address <= mem_pointer;
+        mem_pointer <= std_logic_vector(unsigned(mem_pointer) + 1);
       end if;
     end if;
   end process;

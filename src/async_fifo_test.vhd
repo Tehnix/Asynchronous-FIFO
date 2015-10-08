@@ -102,8 +102,6 @@ begin
     for i in 0 to (2 ** (ADDRESS_WIDTH - 1)) - 1 loop
       write_enable <= '1';
 
-      wait for CLOCK_PERIOD_SLOW;
-
       write_data_in <= TEST_DATA(i);
 
       wait for CLOCK_PERIOD_SLOW;
@@ -114,7 +112,7 @@ begin
     end loop;
 
     -- The write control should report a full FIFO (15)
-    assert unsigned(fifo_occu_in) = (2 ** (ADDRESS_WIDTH - 1)) - 1 report
+    assert unsigned(fifo_occu_in) = (2 ** (ADDRESS_WIDTH - 1)) report
       "`fifo_occu_in' is invalid. FIFO should be full." severity failure;
 
     wait for 5 * CLOCK_PERIOD_SLOW;
@@ -131,9 +129,7 @@ begin
     for i in 0 to (2 ** (ADDRESS_WIDTH - 1)) - 1 loop
       read_enable <= '1';
 
-      wait for CLOCK_PERIOD_FAST;
-
-      assert read_data_out = TEST_DATA(i) report "Wrong result!" severity failure;
+      assert read_data_out = TEST_DATA(i) report "Read data is wrong!" severity failure;
 
       wait for CLOCK_PERIOD_FAST;
 

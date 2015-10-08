@@ -10,7 +10,7 @@ use work.constants_pkg.all;
 entity sync_control is
   port(clk  : in  std_logic;
        ptr  : in  std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
-       sync : out std_logic);
+       sync : out std_logic_vector((ADDRESS_WIDTH - 1) downto 0));
 end sync_control;
 
 architecture arch of sync_control is

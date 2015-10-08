@@ -22,8 +22,8 @@ end async_fifo;
 
 architecture arch of async_fifo is
 
-  signal wptr_sync : std_logic := '0';
-  signal rptr_sync : std_logic := '0';
+  signal wptr_sync : std_logic_vector((ADDRESS_WIDTH - 1) downto 0) := (others => '0');
+  signal rptr_sync : std_logic_vector((ADDRESS_WIDTH - 1) downto 0) := (others => '0');
   signal full      : std_logic := '0';
   signal empty     : std_logic := '0';
   signal wen       : std_logic := '0';
@@ -35,22 +35,22 @@ architecture arch of async_fifo is
 
   -- FIFO Control
   component fifo_control is
-    port(clk       : in  std_logic;
-         reset     : in  std_logic;
-         enable    : in  std_logic;
-         sync      : in  std_logic;
-         pointer   : out std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
-         fifo_occu : out std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
-         flag      : out std_logic;
-         address   : out std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
-         en        : out std_logic);
+    port(clk          : in  std_logic;
+         reset        : in  std_logic;
+         enable       : in  std_logic;
+         sync_pointer : in  std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+         pointer      : out std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+         fifo_occu    : out std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+         flag         : out std_logic;
+         address      : out std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
+         mem_en       : out std_logic);
   end component;
 
   -- SYNC Control
   component sync_control is
     port(clk  : in  std_logic;
          ptr  : in  std_logic_vector((ADDRESS_WIDTH - 1) downto 0);
-         sync : out std_logic);
+         sync : out std_logic_vector((ADDRESS_WIDTH - 1) downto 0));
   end component;
 
   -- Dual port memory
@@ -68,28 +68,28 @@ architecture arch of async_fifo is
 begin
   -- FIFO Write Control port mapping
   fwc : fifo_control
-    port map(clk       => wclk,
-             reset     => reset,
-             enable    => write_enable,
-             sync      => wptr_sync,
-             pointer   => wptr,
-             fifo_occu => fifo_occu_in,
-             flag      => full,
-             address   => waddr,
-             en        => wen);
+    port map(clk          => wclk,
+             reset        => reset,
+             enable       => write_enable,
+             sync_pointer => rptr_sync,
+             pointer      => wptr,
+             fifo_occu    => fifo_occu_in,
+             flag         => full,
+             address      => waddr,
+             mem_en       => wen);
 
   -- FIFO Read Control port mapping
   frc : fifo_control
     port map(
-      clk       => rclk,
-      reset     => reset,
-      enable    => read_enable,
-      sync      => rptr_sync,
-      pointer   => rptr,
-      fifo_occu => fifo_occu_out,
-      flag      => not(empty),
-      address   => raddr,
-      en        => ren);
+      clk          => rclk,
+      reset        => reset,
+      enable       => read_enable,
+      sync_pointer => wptr_sync,
+      pointer      => rptr,
+      fifo_occu    => fifo_occu_out,
+      flag         => empty,
+      address      => raddr,
+      mem_en       => ren);
 
   -- SYNC Read Control port mapping
   ws : sync_control
@@ -114,6 +114,14 @@ begin
              write_data_in => write_data_in,
              read_data_out => read_data_out);
 
+  --process (full, empty)
+  --begin
+  --  if full = '1' then
+
+  --  elsif empty = '1' then
+  --  -- Dont read you fucker
+  --  end if;
+  --end process;
 
   process (wclk)
   begin

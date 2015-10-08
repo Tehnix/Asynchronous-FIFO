@@ -19,6 +19,30 @@ entity dual_port_memory is
 end dual_port_memory;
 
 architecture arch of dual_port_memory is
+  type storage_t is
+    array (0 to 2 ** (ADDRESS_WIDTH - 1) - 1)
+    of std_logic_vector((DATA_WIDTH - 1) downto 0);
+
+  signal storage : storage_t;
+
 begin
+
+  process (wclk, waddr, wen, write_data_in)
+  begin
+    if rising_edge(wclk) then
+      if wen = '1' then
+        storage(to_integer(unsigned(waddr))) <= write_data_in;
+      end if;
+    end if;
+  end process;
+
+  process (rclk, raddr, ren)
+  begin
+    if rising_edge(rclk) then
+      if ren = '1' then
+        read_data_out <= storage(to_integer(unsigned(raddr)));
+      end if;
+    end if;
+  end process;
 
 end arch;
