@@ -12,7 +12,7 @@ end async_fifo_test;
 
 architecture behavior of async_fifo_test is
   type test_array is
-    array (2 ** (ADDRESS_WIDTH - 1) - 1 downto 0)
+    array (0 to 2 ** (ADDRESS_WIDTH - 1) - 1)
     of std_logic_vector((DATA_WIDTH - 1) downto 0);
 
   -- Inputs
@@ -21,16 +21,16 @@ architecture behavior of async_fifo_test is
   signal rclk         : std_logic := '0';
   signal write_enable : std_logic := '0';
   signal read_enable  : std_logic := '0';
-  signal write_data_in
-    : std_logic_vector((DATA_WIDTH - 1) downto 0) := (others => '0');
+  signal write_data_in :
+    std_logic_vector((DATA_WIDTH - 1) downto 0) := (others => '0');
 
   -- Outputs
-  signal fifo_occu_in
-    : std_logic_vector((ADDRESS_WIDTH - 1) downto 0) := (others => '0');
-  signal fifo_occu_out
-    : std_logic_vector((ADDRESS_WIDTH - 1) downto 0) := (others => '0');
-  signal read_data_out
-    : std_logic_vector((DATA_WIDTH - 1) downto 0) := (others => '0');
+  signal fifo_occu_in :
+    std_logic_vector((ADDRESS_WIDTH - 1) downto 0) := (others => '0');
+  signal fifo_occu_out :
+    std_logic_vector((ADDRESS_WIDTH - 1) downto 0) := (others => '0');
+  signal read_data_out :
+    std_logic_vector((DATA_WIDTH - 1) downto 0) := (others => '0');
 
   constant CLOCK_PERIOD_FAST : time := 10 ns;
   constant CLOCK_PERIOD_SLOW : time := 20 ns;
@@ -53,7 +53,7 @@ architecture behavior of async_fifo_test is
 
 begin
   -- instantiate the unit under test (uut)
-  uut : async_fifo
+  i_async_fifo_1 : async_fifo
     port map (reset         => reset,
               wclk          => wclk,
               rclk          => rclk,
@@ -96,6 +96,8 @@ begin
     wait for CLOCK_PERIOD_SLOW;
     reset <= '0';
 
+    wait for CLOCK_PERIOD_SLOW;
+
     -- Write data to memory
     for i in 0 to (2 ** (ADDRESS_WIDTH - 1)) - 1 loop
       write_enable <= '1';
@@ -105,9 +107,11 @@ begin
       write_data_in <= TEST_DATA(i);
 
       wait for CLOCK_PERIOD_SLOW;
-    end loop;
 
-    write_enable <= '0';
+      write_enable <= '0';
+
+      wait for CLOCK_PERIOD_SLOW;
+    end loop;
 
     -- The write control should report a full FIFO (15)
     assert unsigned(fifo_occu_in) = (2 ** (ADDRESS_WIDTH - 1)) - 1 report
@@ -115,11 +119,13 @@ begin
 
     wait for 5 * CLOCK_PERIOD_SLOW;
 
-    -- The read control should synchronized with the write controller and report a full FIFO
-    -- (15)
+    -- The read control should synchronized with the write controller and report a full
+    -- FIFO (15)
     assert unsigned(fifo_occu_out) = unsigned(fifo_occu_in) report
       "`fifo_occu_in' is not equal," &
       "but should be synchronized with `fifo_occu_out'." severity failure;
+
+    wait for CLOCK_PERIOD_FAST;
 
     -- Read data from memory
     for i in 0 to (2 ** (ADDRESS_WIDTH - 1)) - 1 loop
@@ -130,12 +136,19 @@ begin
       assert read_data_out = TEST_DATA(i) report "Wrong result!" severity failure;
 
       wait for CLOCK_PERIOD_FAST;
-    end loop;
 
-    read_enable <= '0';
+      read_enable <= '0';
+
+      wait for CLOCK_PERIOD_FAST;
+    end loop;
 
     assert unsigned(fifo_occu_out) = 0 report
       "After read: `fifo_occu_out' should be return an empty FIFO." severity failure;
+
+    wait for 5 * CLOCK_PERIOD_SLOW;
+
+    assert unsigned(fifo_occu_in) = 0 report
+      "`fifo_occu_in' is invalid. FIFO should be empty." severity failure;
 
     wait;
   end process;

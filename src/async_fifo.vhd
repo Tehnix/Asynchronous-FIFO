@@ -87,7 +87,7 @@ begin
       sync      => rptr_sync,
       pointer   => rptr,
       fifo_occu => fifo_occu_out,
-      flag      => empty,
+      flag      => not(empty),
       address   => raddr,
       en        => ren);
 

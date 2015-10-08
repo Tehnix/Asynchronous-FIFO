@@ -15,5 +15,10 @@ end sync_control;
 
 architecture arch of sync_control is
 begin
-
+  process (clk)
+  begin
+    if rising_edge(clk) then
+      sync <= ptr;
+    end if;
+  end process;
 end arch;
