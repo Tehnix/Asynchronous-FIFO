@@ -37,7 +37,7 @@ begin
     end if;
   end process;
 
-  process (clk, reset, enable)
+  process (clk, reset)
   begin
     if reset = '1' then
       mem_pointer   <= (others => '0');

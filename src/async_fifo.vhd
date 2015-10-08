@@ -91,7 +91,7 @@ begin
       sync_pointer => wptr_sync,
       pointer      => rptr,
       fifo_occu    => fifo_occu_out,
-      flag         => empty_inverted,
+      flag         => empty,
       address      => raddr,
       mem_en       => ren);
 
@@ -117,20 +117,5 @@ begin
              ren           => ren,
              write_data_in => write_data_in,
              read_data_out => read_data_out);
-
-  process (wclk)
-  begin
-  -- COMBINATORIC PROCESS
-  end process;
-
-  process(wclk, reset)
-  begin
-    -- CLOCK PROCESS
-    if reset = '1' then
-    -- reset the system
-    elsif rising_edge(wclk) then
-
-    end if;
-  end process;
 
 end arch;

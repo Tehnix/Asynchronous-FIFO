@@ -27,7 +27,7 @@ architecture arch of dual_port_memory is
 
 begin
 
-  process (wclk, waddr, wen, write_data_in)
+  process (wclk)
   begin
     if rising_edge(wclk) then
       if wen = '1' then
