@@ -31,7 +31,7 @@ begin
   begin
     if rising_edge(wclk) then
       if wen = '1' then
-        storage(to_integer(unsigned(waddr))) <= write_data_in;
+        storage(to_integer(unsigned(waddr(ADDRESS_WIDTH - 2 downto 0)))) <= write_data_in;
       end if;
     end if;
   end process;
@@ -39,7 +39,7 @@ begin
   process (raddr, ren)
   begin
     if ren = '1' then
-      read_data_out <= storage(to_integer(unsigned(raddr)));
+      read_data_out <= storage(to_integer(unsigned(raddr(ADDRESS_WIDTH - 2 downto 0))));
     end if;
   end process;
 

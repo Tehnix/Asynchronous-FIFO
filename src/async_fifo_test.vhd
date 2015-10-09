@@ -146,6 +146,69 @@ begin
     assert unsigned(fifo_occu_in) = 0 report
       "`fifo_occu_in' is invalid. FIFO should be empty." severity failure;
 
+
+    -- Test the real FIFO, push 3 read 2
+    write_enable <= '1';
+
+    write_data_in <= TEST_DATA(3); -- EF
+
+    wait for CLOCK_PERIOD_SLOW;
+
+    write_enable <= '0';
+
+    wait for CLOCK_PERIOD_SLOW;
+
+    write_enable <= '1';
+
+    write_data_in <= TEST_DATA(2); -- BE
+
+    wait for CLOCK_PERIOD_SLOW;
+
+    write_enable <= '0';
+
+    wait for CLOCK_PERIOD_SLOW;
+
+    write_enable <= '1';
+
+    write_data_in <= TEST_DATA(1); -- AD
+
+    wait for CLOCK_PERIOD_SLOW;
+
+    write_enable <= '0';
+
+    wait for CLOCK_PERIOD_SLOW;
+
+    -- Read
+    read_enable <= '1';
+
+    wait for CLOCK_PERIOD_FAST;
+
+    assert read_data_out = TEST_DATA(3) report "Read data is wrong, expected EF!" severity warning;
+
+    read_enable <= '0';
+
+    wait for CLOCK_PERIOD_FAST;
+
+    read_enable <= '1';
+
+    wait for CLOCK_PERIOD_FAST;
+
+    assert read_data_out = TEST_DATA(2) report "Read data is wrong, expected AD!" severity warning;
+
+    read_enable <= '0';
+
+    wait for CLOCK_PERIOD_FAST;
+
+    read_enable <= '1';
+
+    wait for CLOCK_PERIOD_FAST;
+
+    assert read_data_out = TEST_DATA(1) report "Read data is wrong, expected BE!" severity warning;
+
+    read_enable <= '0';
+
+    wait for CLOCK_PERIOD_FAST;
+
     wait;
   end process;
 
